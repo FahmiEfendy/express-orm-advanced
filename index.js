@@ -2,6 +2,7 @@ const dotenv = require("dotenv");
 const express = require("express");
 
 const song = require("./server/api/song");
+const playlist = require("./server/api/playlist");
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/song", song);
+app.use("/playlist", playlist);
 
 app.listen(port, () => {
   console.log(`Successfully connected to port ${port}`);

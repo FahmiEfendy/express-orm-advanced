@@ -26,7 +26,21 @@ const createSongValidation = (data) => {
   }
 };
 
+const createPlaylistValidation = (data) => {
+  const schema = Joi.object({
+    name: Joi.string()
+      .required()
+      .description("Playlist name, i.e. Morning Music"),
+    user_id: Joi.string().required().description("User id, i.e. john-1"),
+  });
+
+  if (schema.validate(data).error) {
+    throw Boom.badRequest(schema.validate(data).error);
+  }
+};
+
 module.exports = {
   idValidation,
   createSongValidation,
+  createPlaylistValidation,
 };
