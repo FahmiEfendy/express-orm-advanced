@@ -71,6 +71,30 @@ const postCreatePlaylist = async (objectData) => {
   }
 };
 
+const patchUpdatePlaylist = async (objectData) => {
+  const { id, name } = objectData;
+
+  try {
+    const selectedPlaylist = await db.Playlist.findOne({ id: id });
+
+    selectedPlaylist.name = name || selectedPlaylist.name;
+
+    await selectedPlaylist.save({ fields: ["name"] });
+
+    await selectedPlaylist.reload();
+
+    console.log([fileName, "PATCH Update Playlist", "INFO"]);
+
+    return Promise.resolve([]);
+  } catch (err) {
+    console.log([fileName, "PATCH Update Playlist", "ERROR"], {
+      message: { info: `${err}` },
+    });
+
+    return Promise.reject(generalHelper.errorResponse(err));
+  }
+};
+
 const deleteRemovePlaylist = async (objectData) => {
   const { id } = objectData;
 
@@ -93,5 +117,6 @@ module.exports = {
   getPlaylistList,
   getPlaylistDetail,
   postCreatePlaylist,
+  patchUpdatePlaylist,
   deleteRemovePlaylist,
 };

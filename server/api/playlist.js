@@ -44,6 +44,29 @@ const createPlaylist = async (req, res) => {
   }
 };
 
+const updatePlaylist = async (req, res) => {
+  const { id } = req.params;
+  const { name } = req.body;
+
+  const objectData = {
+    id,
+    name,
+  };
+
+  try {
+    validationHelper.idValidation(req.params);
+    validationHelper.updatePlaylistValidation(req.body);
+
+    const response = await playlistHelper.patchUpdatePlaylist(objectData);
+
+    res
+      .status(201)
+      .send({ message: "Successfully Update a Playlist", data: response });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
+
 const removePlaylist = async (req, res) => {
   try {
     validationHelper.idValidation(req.params);
@@ -59,8 +82,8 @@ const removePlaylist = async (req, res) => {
 Router.get("/", playlistList);
 Router.get("/detail/:id", playlistDetail);
 Router.post("/create", createPlaylist);
+Router.patch("/update/:id", updatePlaylist);
 Router.delete("/remove/:id", removePlaylist);
-// TODO: Patch Update Playlist
 // TODO: Add and Remove Playlist's Song
 
 module.exports = Router;
