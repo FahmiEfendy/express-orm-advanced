@@ -23,12 +23,19 @@ const getPlaylistDetail = async (objectData) => {
   const { id } = objectData;
 
   try {
-    const data = await db.Playlist.findOne({ where: { id: id } });
-    // TODO: Add Properties List of Stored Song (songs: [])
+    const data = await db.Playlist.findOne({
+      where: { id: id },
+      include: {
+        model: db.Song,
+        as: "songs",
+        attributes: ["id", "title", "singer"],
+        through: { attributes: [] },
+      },
+    });
 
     const formattedData = {
       ...data.dataValues,
-      total_song: data.dataValues.songs || 0,
+      total_song: data.total_song,
     };
 
     console.log([fileName, "GET Playlist Detail", "INFO"]);
@@ -49,11 +56,9 @@ const postCreatePlaylist = async (objectData) => {
   const playlistList = await getPlaylistList();
 
   try {
-    // TODO: Fix songs properties (not shown)
     const newData = db.Playlist.build({
       id: `playlist-${playlistList.length + 1}`,
       name,
-      songs: [],
       user_id,
     });
 
@@ -113,10 +118,68 @@ const deleteRemovePlaylist = async (objectData) => {
   }
 };
 
+const postAddSongToPlaylist = async (objectData) => {
+  const { playlist_id, song_id } = objectData;
+
+  try {
+    const selectedPlaylist = await db.Playlist.findOne({
+      where: { id: playlist_id },
+    });
+
+    await selectedPlaylist.addSong(song_id);
+
+    await selectedPlaylist.reload();
+
+    const updatedSelectedPlaylist = await db.Playlist.findOne({
+      where: { id: playlist_id },
+    });
+
+    console.log([fileName, "POST Add Song To Playlist", "INFO"]);
+
+    return Promise.resolve(updatedSelectedPlaylist);
+  } catch (err) {
+    console.log([fileName, "POST Add Song To Playlist", "ERROR"], {
+      message: { info: `${err}` },
+    });
+
+    return Promise.reject(generalHelper.errorResponse(err));
+  }
+};
+
+const deleteRemoveSongFromPlaylist = async (objectData) => {
+  const { playlist_id, song_id } = objectData;
+
+  try {
+    const selectedPlaylist = await db.Playlist.findOne({
+      where: { id: playlist_id },
+    });
+
+    await selectedPlaylist.removeSong(song_id);
+
+    await selectedPlaylist.reload();
+
+    const updatedSelectedPlaylist = await db.Playlist.findOne({
+      where: { id: playlist_id },
+    });
+
+    console.log([fileName, "DELETE Remove a Song from Playlist", "INFO"]);
+
+    return Promise.resolve(updatedSelectedPlaylist);
+  } catch (err) {
+    console.log([fileName, "DELETE Remove a Song from Playlist", "ERROR"], {
+      message: { info: `${err}` },
+    });
+
+    return Promise.reject(generalHelper.errorResponse(err));
+  }
+};
+
 module.exports = {
   getPlaylistList,
   getPlaylistDetail,
   postCreatePlaylist,
   patchUpdatePlaylist,
   deleteRemovePlaylist,
+  postAddSongToPlaylist,
+  deleteRemoveSongFromPlaylist,
 };

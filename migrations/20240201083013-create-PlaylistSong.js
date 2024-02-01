@@ -1,29 +1,31 @@
 "use strict";
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Playlists", {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable("PlaylistSongs", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      name: {
-        type: Sequelize.STRING,
-      },
-      songs: {
-        type: Sequelize.ARRAY(Sequelize.INTEGER),
-        allowNull: true,
-      },
-      user_id: {
+      playlist_id: {
         type: Sequelize.INTEGER,
         references: {
-          model: "User",
+          model: "Playlist",
           key: "id",
         },
-        onDelete: "CASCADE",
         onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
+      song_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: "Song",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
       },
       createdAt: {
         allowNull: false,
@@ -35,7 +37,7 @@ module.exports = {
       },
     });
   },
-  async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Playlists");
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable("PlaylistSongs");
   },
 };

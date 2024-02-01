@@ -79,11 +79,56 @@ const removePlaylist = async (req, res) => {
   }
 };
 
+const addSongToPlaylist = async (req, res) => {
+  const objectData = {
+    playlist_id: req.params.id,
+    song_id: req.body.song_id,
+  };
+
+  try {
+    validationHelper.idValidation(req.params);
+    validationHelper.idValidation({ id: objectData.song_id });
+
+    const response = await playlistHelper.postAddSongToPlaylist(objectData);
+
+    res.status(200).send({
+      message: "Successfully Added a Song to Playlist",
+      data: response,
+    });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
+
+const removeSongFromPlaylist = async (req, res) => {
+  const objectData = {
+    playlist_id: req.params.id,
+    song_id: req.body.song_id,
+  };
+
+  try {
+    validationHelper.idValidation(req.params);
+    validationHelper.idValidation({ id: objectData.song_id });
+
+    const response = await playlistHelper.deleteRemoveSongFromPlaylist(
+      objectData
+    );
+
+    res.status(200).send({
+      message: "Successfully Removed a Song from Playlist",
+      data: response,
+    });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
+
 Router.get("/", playlistList);
 Router.get("/detail/:id", playlistDetail);
 Router.post("/create", createPlaylist);
 Router.patch("/update/:id", updatePlaylist);
 Router.delete("/remove/:id", removePlaylist);
-// TODO: Add and Remove Playlist's Song
+Router.post("/add-song/:id", addSongToPlaylist);
+Router.delete("/remove-song/:id", removeSongFromPlaylist);
 
 module.exports = Router;
