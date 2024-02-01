@@ -1,3 +1,5 @@
+const Boom = require("boom");
+
 const db = require("../../models");
 const generalHelper = require("./generalHelper");
 
@@ -40,9 +42,19 @@ const getSongDetail = async (objectData) => {
 const postCreateSong = async (objectData) => {
   const { title, singer, genre, duration } = objectData;
 
-  const songList = await getSongList();
-
   try {
+    const songExist = await db.Song.findOne({
+      where: { title, singer },
+    });
+
+    if (songExist) {
+      throw Boom.badData(
+        `Song with title ${title} and singer ${singer} already exist!`
+      );
+    }
+
+    const songList = await getSongList();
+
     const newData = db.Song.build({
       id: `song-${songList.length + 1}`,
       title,

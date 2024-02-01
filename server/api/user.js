@@ -1,6 +1,7 @@
 const Router = require("express").Router();
 
 const userHelper = require("../helpers/userHelper");
+const generalHelper = require("../helpers/generalHelper");
 const validationHelper = require("../helpers/validationHelper");
 
 const userList = async (req, res) => {
@@ -40,7 +41,9 @@ const createUser = async (req, res) => {
       .status(201)
       .send({ message: "Successfully Create New User", data: response });
   } catch (err) {
-    res.status(500).send({ message: err.message });
+    return res
+      .status(err.output.statusCode)
+      .send(generalHelper.errorResponse(err).output.payload);
   }
 };
 

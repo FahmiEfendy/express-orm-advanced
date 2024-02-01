@@ -1,3 +1,5 @@
+const Boom = require("boom");
+
 const db = require("../../models");
 const generalHelper = require("./generalHelper");
 
@@ -48,6 +50,12 @@ const postCreateUser = async (objectData) => {
   const { username, password } = objectData;
 
   try {
+    const userExist = await db.User.findOne({ where: { username } });
+
+    if (userExist) {
+      throw Boom.badData(`User with username ${username} already exist!`);
+    }
+
     const userList = await getUserList();
 
     const newData = db.User.build({
