@@ -49,7 +49,7 @@ const postCreatePlaylist = async (objectData) => {
   const playlistList = await getPlaylistList();
 
   try {
-    // TODO: Fix songs and user_id properties (not shown)
+    // TODO: Fix songs properties (not shown)
     const newData = db.Playlist.build({
       id: `playlist-${playlistList.length + 1}`,
       name,

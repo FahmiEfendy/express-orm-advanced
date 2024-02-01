@@ -23,8 +23,14 @@ const getUserDetail = async (objectData) => {
   const { id } = objectData;
 
   try {
-    const data = db.User.findOne({ where: { id: id } });
-    // TODO: Add Properties List of Owned Playlists (playlists: [])
+    const data = db.User.findOne({
+      where: { id: id },
+      include: {
+        model: db.Playlist,
+        as: "playlists",
+        attributes: ["id", "name"],
+      },
+    });
 
     console.log([fileName, "GET User Detail", "INFO"]);
 

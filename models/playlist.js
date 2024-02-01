@@ -10,6 +10,10 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       // TODO: Add Many to Many Relationship with Song Model
+      Playlist.belongsTo(models.User, {
+        foreignKey: "user_id",
+        as: "users",
+      });
     }
   }
   Playlist.init(
