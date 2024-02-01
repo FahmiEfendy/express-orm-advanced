@@ -24,6 +24,7 @@ const getPlaylistDetail = async (objectData) => {
 
   try {
     const data = await db.Playlist.findOne({ where: { id: id } });
+    // TODO: Add Properties List of Stored Song (songs: [])
 
     const formattedData = {
       ...data.dataValues,

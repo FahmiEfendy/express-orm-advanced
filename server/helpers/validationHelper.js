@@ -11,14 +11,24 @@ const idValidation = (data) => {
   }
 };
 
-const createSongValidation = (data) => {
+const songRequestValidation = (data, isUpdate = false) => {
   const schema = Joi.object({
-    title: Joi.string()
-      .required()
-      .description("Song title, i.e. Bohemian Rhapsody"),
-    singer: Joi.string().required().description("Singer, i.e. Queen"),
-    genre: Joi.string().required().description("Genre, i.e. Hard Rock"),
-    duration: Joi.string().required().description("Duration, i.e. 05:55"),
+    title: isUpdate
+      ? Joi.string()
+          .optional()
+          .description("Song title, i.e. Bohemian Rhapsody")
+      : Joi.string()
+          .required()
+          .description("Song title, i.e. Bohemian Rhapsody"),
+    singer: isUpdate
+      ? Joi.string().optional().description("Singer, i.e. Queen")
+      : Joi.string().required().description("Singer, i.e. Queen"),
+    genre: isUpdate
+      ? Joi.string().optional().description("Genre, i.e. Hard Rock")
+      : Joi.string().required().description("Genre, i.e. Hard Rock"),
+    duration: isUpdate
+      ? Joi.string().optional().description("Duration, i.e. 05:55")
+      : Joi.string().required().description("Duration, i.e. 05:55"),
   });
 
   if (schema.validate(data).error) {
@@ -68,7 +78,7 @@ const updateUserValidation = (data) => {
 
 module.exports = {
   idValidation,
-  createSongValidation,
+  songRequestValidation,
   createPlaylistValidation,
   createUserValidation,
   updateUserValidation,

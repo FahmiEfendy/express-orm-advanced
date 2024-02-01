@@ -32,13 +32,39 @@ const songDetail = async (req, res) => {
 
 const createSong = async (req, res) => {
   try {
-    validationHelper.createSongValidation(req.body);
+    validationHelper.songRequestValidation(req.body);
 
     const response = await songHelper.postCreateSong(req.body);
 
     res
       .status(201)
       .send({ message: "Successfully Create New Song", data: response });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
+
+const updateSong = async (req, res) => {
+  const { id } = req.params;
+  const { title, singer, genre, duration } = req.body;
+
+  const objectData = {
+    id,
+    title,
+    singer,
+    genre,
+    duration,
+  };
+
+  try {
+    validationHelper.idValidation(req.params);
+    validationHelper.songRequestValidation(req.body, true);
+
+    const response = await songHelper.patchUpdateSong(objectData);
+
+    res
+      .status(200)
+      .send({ message: "Successfully Update a Song", data: response });
   } catch (err) {
     res.status(500).send({ message: err.message });
   }
@@ -59,7 +85,7 @@ const removeSong = async (req, res) => {
 Router.get("/", songList);
 Router.get("/detail/:id", songDetail);
 Router.post("/create", createSong);
+Router.patch("/update/:id", updateSong);
 Router.delete("/remove/:id", removeSong);
-// TODO: Patch Update Song
 
 module.exports = Router;

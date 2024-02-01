@@ -65,6 +65,35 @@ const postCreateSong = async (objectData) => {
   }
 };
 
+const patchUpdateSong = async (objectData) => {
+  const { id, title, singer, genre, duration } = objectData;
+
+  try {
+    const selectedSong = await db.Song.findOne({ id: id });
+
+    selectedSong.title = title || selectedSong.title;
+    selectedSong.singer = singer || selectedSong.singer;
+    selectedSong.genre = genre || selectedSong.genre;
+    selectedSong.duration = duration || selectedSong.duration;
+
+    await selectedSong.save({
+      fields: ["title", "singer", "genre", "duration"],
+    });
+
+    await selectedSong.reload();
+
+    console.log([fileName, "PATCH Update Song", "INFO"]);
+
+    return Promise.resolve([]);
+  } catch (err) {
+    console.log([fileName, "PATCH Update Song", "ERROR"], {
+      message: { info: `${err}` },
+    });
+
+    return Promise.reject(generalHelper.errorResponse(err));
+  }
+};
+
 const deleteRemoveSong = async (objectData) => {
   const { id } = objectData;
 
@@ -87,5 +116,6 @@ module.exports = {
   getSongList,
   getSongDetail,
   postCreateSong,
+  patchUpdateSong,
   deleteRemoveSong,
 };
