@@ -39,8 +39,37 @@ const createPlaylistValidation = (data) => {
   }
 };
 
+const createUserValidation = (data) => {
+  const schema = Joi.object({
+    username: Joi.string()
+      .required()
+      .description("User username, i.e. JohnDoe"),
+    password: Joi.string()
+      .required()
+      .description("User password, i.e. JohnDoe123"),
+  });
+
+  if (schema.validate(data).error) {
+    throw Boom.badRequest(schema.validate(data).error);
+  }
+};
+
+const updateUserValidation = (data) => {
+  const schema = Joi.object({
+    password: Joi.string()
+      .required()
+      .description("User password, i.e. JohnDoe456"),
+  });
+
+  if (schema.validate(data).error) {
+    throw Boom.badRequest(schema.validate(data).error);
+  }
+};
+
 module.exports = {
   idValidation,
   createSongValidation,
   createPlaylistValidation,
+  createUserValidation,
+  updateUserValidation,
 };
