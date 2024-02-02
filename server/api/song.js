@@ -2,6 +2,7 @@ const Router = require("express").Router();
 
 const songHelper = require("../helpers/songHelper");
 const validationHelper = require("../helpers/validationHelper");
+const userMiddleware = require("../middlewares/userMiddleware");
 
 const songList = async (req, res) => {
   try {
@@ -32,7 +33,13 @@ const songDetail = async (req, res) => {
 
 const createSong = async (req, res) => {
   try {
-    validationHelper.songRequestValidation(req.body);
+    const validateData = {
+      title: req.body.title,
+      genre: req.body.genre,
+      duration: req.body.duration,
+    };
+
+    validationHelper.songRequestValidation(validateData);
 
     const response = await songHelper.postCreateSong(req.body);
 
@@ -45,20 +52,27 @@ const createSong = async (req, res) => {
 };
 
 const updateSong = async (req, res) => {
-  const { id } = req.params;
-  const { title, singer, genre, duration } = req.body;
+  const { id: song_id } = req.params;
+  const { id, username, title, genre, duration } = req.body;
 
   const objectData = {
     id,
+    username,
+    song_id,
     title,
-    singer,
     genre,
     duration,
   };
 
   try {
-    validationHelper.idValidation(req.params);
-    validationHelper.songRequestValidation(req.body, true);
+    const validateData = {
+      title: req.body.title,
+      genre: req.body.genre,
+      duration: req.body.duration,
+    };
+
+    validationHelper.idValidation({ id: song_id });
+    validationHelper.songRequestValidation(validateData, true);
 
     const response = await songHelper.patchUpdateSong(objectData);
 
@@ -72,9 +86,15 @@ const updateSong = async (req, res) => {
 
 const removeSong = async (req, res) => {
   try {
+    const objectData = {
+      id: req.body.id,
+      username: req.body.username,
+      song_id: req.params.id,
+    };
+
     validationHelper.idValidation(req.params);
 
-    await songHelper.deleteRemoveSong(req.params);
+    await songHelper.deleteRemoveSong(objectData);
 
     res.status(200).send({ message: "Successfully Deleted a Song" });
   } catch (err) {
@@ -84,8 +104,8 @@ const removeSong = async (req, res) => {
 
 Router.get("/", songList);
 Router.get("/detail/:id", songDetail);
-Router.post("/create", createSong);
-Router.patch("/update/:id", updateSong);
-Router.delete("/remove/:id", removeSong);
+Router.post("/create", userMiddleware.tokenValidation, createSong);
+Router.patch("/update/:id", userMiddleware.tokenValidation, updateSong);
+Router.delete("/remove/:id", userMiddleware.tokenValidation, removeSong);
 
 module.exports = Router;

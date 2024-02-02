@@ -1,4 +1,5 @@
 const Boom = require("boom");
+const _ = require("lodash");
 
 const db = require("../../models");
 const generalHelper = require("./generalHelper");
@@ -40,9 +41,17 @@ const getSongDetail = async (objectData) => {
 };
 
 const postCreateSong = async (objectData) => {
-  const { title, singer, genre, duration } = objectData;
+  const { id, username, title, singer, genre, duration } = objectData;
 
   try {
+    const selectedArtist = await db.User.findOne({
+      where: { id, username, role: "artist" },
+    });
+
+    if (_.isEmpty(selectedArtist)) {
+      throw Boom.unauthorized("You Have No Access to Add a Song!");
+    }
+
     const songExist = await db.Song.findOne({
       where: { title, singer },
     });
@@ -58,9 +67,10 @@ const postCreateSong = async (objectData) => {
     const newData = db.Song.build({
       id: `song-${songList.length + 1}`,
       title,
-      singer,
+      singer: selectedArtist.fullname,
       genre,
       duration,
+      user_id: selectedArtist.id,
     });
 
     await newData.save();
@@ -78,18 +88,25 @@ const postCreateSong = async (objectData) => {
 };
 
 const patchUpdateSong = async (objectData) => {
-  const { id, title, singer, genre, duration } = objectData;
+  const { id, username, song_id, title, genre, duration } = objectData;
 
   try {
-    const selectedSong = await db.Song.findOne({ id: id });
+    const selectedArtist = await db.User.findOne({
+      where: { id, username, role: "artist" },
+    });
+
+    if (_.isEmpty(selectedArtist)) {
+      throw Boom.unauthorized("You have no access to edit this song!");
+    }
+
+    const selectedSong = await db.Song.findOne({ id: song_id });
 
     selectedSong.title = title || selectedSong.title;
-    selectedSong.singer = singer || selectedSong.singer;
     selectedSong.genre = genre || selectedSong.genre;
     selectedSong.duration = duration || selectedSong.duration;
 
     await selectedSong.save({
-      fields: ["title", "singer", "genre", "duration"],
+      fields: ["title", "genre", "duration"],
     });
 
     await selectedSong.reload();
@@ -107,10 +124,26 @@ const patchUpdateSong = async (objectData) => {
 };
 
 const deleteRemoveSong = async (objectData) => {
-  const { id } = objectData;
+  const { id, username, song_id } = objectData;
 
   try {
-    await db.Song.destroy({ where: { id: id } });
+    const selectedArtist = await db.User.findOne({
+      where: { id, username, role: "artist" },
+    });
+
+    if (_.isEmpty(selectedArtist)) {
+      throw Boom.unauthorized("You have no access to delete this song!");
+    }
+
+    const selectedSong = await db.Song.findOne({
+      where: { id: song_id },
+    });
+
+    if (_.isEmpty(selectedSong)) {
+      throw Boom.notFound(`Song with id of ${song_id} not found!`);
+    }
+
+    await db.Song.destroy({ where: { id: song_id } });
 
     console.log([fileName, "DELETE Remove Song", "INFO"]);
 

@@ -20,9 +20,6 @@ const songRequestValidation = (data, isUpdate = false) => {
       : Joi.string()
           .required()
           .description("Song title, i.e. Bohemian Rhapsody"),
-    singer: isUpdate
-      ? Joi.string().optional().description("Singer, i.e. Queen")
-      : Joi.string().required().description("Singer, i.e. Queen"),
     genre: isUpdate
       ? Joi.string().optional().description("Genre, i.e. Hard Rock")
       : Joi.string().required().description("Genre, i.e. Hard Rock"),
