@@ -1,9 +1,27 @@
+const _ = require("lodash");
 const Boom = require("boom");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const db = require("../../models");
 const generalHelper = require("./generalHelper");
 
+const salt = bcrypt.genSaltSync(10);
 const fileName = "server/helpers/userHelper.js";
+const jwtExpiresIn = process.env.JWT_EXPIRES_IN || "24h";
+const jwtSecretToken = process.env.JWT_SECRET_TOKEN || "MUSIC_SERVICE_KEY";
+
+const __hashPassword = (password) => {
+  return bcrypt.hashSync(password, salt);
+};
+
+const __comparePassword = (payloadPass, dbPass) => {
+  return bcrypt.compareSync(payloadPass, dbPass);
+};
+
+const __generateToken = (data) => {
+  return jwt.sign(data, jwtSecretToken, { expiresIn: jwtExpiresIn });
+};
 
 const getUserList = async () => {
   try {
@@ -46,31 +64,68 @@ const getUserDetail = async (objectData) => {
   }
 };
 
-const postCreateUser = async (objectData) => {
-  const { username, password } = objectData;
+const postRegister = async (objectData) => {
+  const { username, fullname, password, role } = objectData;
 
   try {
     const userExist = await db.User.findOne({ where: { username } });
 
-    if (userExist) {
-      throw Boom.badData(`User with username ${username} already exist!`);
+    if (!_.isEmpty(userExist)) {
+      throw Boom.badRequest(`User with username ${username} already exist!`);
     }
 
     const userList = await getUserList();
+    const hashedPassword = __hashPassword(password);
 
-    const newData = db.User.build({
+    const newUser = await db.User.create({
       id: `user-${userList.length + 1}`,
       username,
-      password,
+      fullname,
+      password: hashedPassword,
+      role,
     });
 
-    await newData.save();
+    console.log([fileName, "POST Register", "INFO"]);
 
-    console.log([fileName, "POST Create User", "INFO"]);
-
-    return Promise.resolve(newData);
+    return Promise.resolve(newUser);
   } catch (err) {
-    console.log([fileName, "POST Create User", "ERROR"], {
+    console.log([fileName, "POST Register", "ERROR"], {
+      message: { info: `${err}` },
+    });
+
+    return Promise.reject(generalHelper.errorResponse(err));
+  }
+};
+
+const postLogin = async (objectData) => {
+  const { username, password } = objectData;
+
+  try {
+    const selectedUser = await db.User.findOne({ where: { username } });
+
+    if (_.isEmpty(selectedUser)) {
+      throw Boom.badRequest(`User with username ${username} not found!`);
+    }
+
+    const isPasswordMatched = __comparePassword(
+      password,
+      selectedUser.password
+    );
+
+    if (!isPasswordMatched) {
+      throw Boom.badRequest(`Wrong password!`);
+    }
+
+    const token = __generateToken({
+      username: selectedUser.username,
+      role: selectedUser.role,
+    });
+
+    console.log([fileName, "POST Login", "INFO"]);
+
+    return Promise.resolve({ token });
+  } catch (err) {
+    console.log([fileName, "POST Login", "ERROR"], {
       message: { info: `${err}` },
     });
 
@@ -123,7 +178,8 @@ const deleteRemoveUser = async (objectData) => {
 module.exports = {
   getUserList,
   getUserDetail,
-  postCreateUser,
+  postRegister,
+  postLogin,
   patchChangePassword,
   deleteRemoveUser,
 };

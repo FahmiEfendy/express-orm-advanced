@@ -4,6 +4,45 @@ const userHelper = require("../helpers/userHelper");
 const generalHelper = require("../helpers/generalHelper");
 const validationHelper = require("../helpers/validationHelper");
 
+const resgister = async (req, res) => {
+  const { username, fullname, password, role } = req.body;
+
+  try {
+    validationHelper.registerValidation(req.body);
+
+    const response = await userHelper.postRegister({
+      username,
+      fullname,
+      role,
+      password,
+    });
+
+    res
+      .status(201)
+      .send({ message: "Successfully Create New User", data: response });
+  } catch (err) {
+    return res
+      .status(err.output.statusCode)
+      .send(generalHelper.errorResponse(err).output.payload);
+  }
+};
+
+const login = async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    validationHelper.loginValidation(req.body);
+
+    const response = await userHelper.postLogin({ username, password });
+
+    res.status(200).send({ message: "Successfully Login", data: response });
+  } catch (err) {
+    return res
+      .status(err.output.statusCode)
+      .send(generalHelper.errorResponse(err).output.payload);
+  }
+};
+
 const userList = async (req, res) => {
   try {
     const response = await userHelper.getUserList();
@@ -28,22 +67,6 @@ const userDetail = async (req, res) => {
     });
   } catch (err) {
     res.status(500).send({ message: err.message });
-  }
-};
-
-const createUser = async (req, res) => {
-  try {
-    validationHelper.createUserValidation(req.body);
-
-    const response = await userHelper.postCreateUser(req.body);
-
-    res
-      .status(201)
-      .send({ message: "Successfully Create New User", data: response });
-  } catch (err) {
-    return res
-      .status(err.output.statusCode)
-      .send(generalHelper.errorResponse(err).output.payload);
   }
 };
 
@@ -82,9 +105,10 @@ const removeUser = async (req, res) => {
   }
 };
 
+Router.post("/register", resgister);
+Router.post("/login", login);
 Router.get("/", userList);
 Router.get("/detail/:id", userDetail);
-Router.post("/create", createUser);
 Router.patch("/change-password/:id", changePassword);
 Router.delete("/remove/:id", removeUser);
 

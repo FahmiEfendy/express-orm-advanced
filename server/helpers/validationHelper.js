@@ -61,14 +61,45 @@ const updatePlaylistValidation = (data) => {
   }
 };
 
-const createUserValidation = (data) => {
+const registerValidation = (data) => {
   const schema = Joi.object({
     username: Joi.string()
       .required()
-      .description("User username, i.e. JohnDoe"),
+      .description("User's username, i.e. john123"),
+    fullname: Joi.string()
+      .required()
+      .description("User's full name, i.e. John Doe"),
+    role: Joi.string()
+      .required()
+      .description("User's role, i.e. listener or artist"),
+    password: Joi.string()
+      .min(6)
+      .max(20)
+      .required()
+      .description("User's password, should be 6-20 characters"),
+    confirmPassword: Joi.string()
+      .min(6)
+      .max(20)
+      .required()
+      .valid(Joi.ref("password"))
+      .description("Should match user's password"),
+  });
+
+  if (schema.validate(data).error) {
+    throw Boom.badRequest(schema.validate(data).error);
+  }
+};
+
+const loginValidation = (data) => {
+  const schema = Joi.object({
+    username: Joi.string()
+      .required()
+      .description("User's username, i.e. john123"),
     password: Joi.string()
       .required()
-      .description("User password, i.e. JohnDoe123"),
+      .min(6)
+      .max(20)
+      .description("User's password, should be 6-20 characters"),
   });
 
   if (schema.validate(data).error) {
@@ -93,6 +124,7 @@ module.exports = {
   songRequestValidation,
   createPlaylistValidation,
   updatePlaylistValidation,
-  createUserValidation,
+  registerValidation,
+  loginValidation,
   updateUserValidation,
 };
