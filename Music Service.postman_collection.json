@@ -1,0 +1,346 @@
+{
+	"info": {
+		"_postman_id": "6d9c8b37-03d9-42d6-a06e-28df7b61c512",
+		"name": "Music Service",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "21039946"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "[POST] Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"userdua\",\r\n    \"fullname\":\"ini akun userdua\",\r\n    \"role\":\"artist\",\r\n    \"password\":\"userdua2\",\r\n    \"confirmPassword\":\"userdua2\"\r\n\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BACKEND_URL}}/user/register"
+					},
+					"response": []
+				},
+				{
+					"name": "[POST] Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"usersatu\",\r\n    \"password\": \"usersatu1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BACKEND_URL}}/user/login"
+					},
+					"response": []
+				},
+				{
+					"name": "[GET] All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{BACKEND_URL}}/user"
+					},
+					"response": []
+				},
+				{
+					"name": "[GET] User Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{BACKEND_URL}}/user/detail"
+					},
+					"response": []
+				},
+				{
+					"name": "[PATCH] Change Password",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"oldPassword\":\"usersatu1\",\r\n    \"newPassword\":\"usersatu2\",\r\n    \"confirmNewPassword\":\"usersatu2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BACKEND_URL}}/user/change-password/"
+					},
+					"response": []
+				},
+				{
+					"name": "[POST] Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"usersatu\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BACKEND_URL}}/user/forgot-password"
+					},
+					"response": []
+				},
+				{
+					"name": "[POST] Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"newPassword\": \"usersatu1\",\r\n    \"confirmNewPassword\": \"usersatu1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BACKEND_URL}}/user/reset-password/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXItMSIsImlhdCI6MTcwNjg4NjI3MiwiZXhwIjoxNzA2OTcyNjcyfQ.Q6zokEfVAB01zCr4IDD5buwYCiBvXR2s8oB6jsOtBRQ"
+					},
+					"response": []
+				},
+				{
+					"name": "[DELETE] Remove User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{BACKEND_URL}}/user/remove"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Playlist",
+			"item": [
+				{
+					"name": "[POST] Create Playlist",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"playlist made by user satu\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BACKEND_URL}}/playlist/create"
+					},
+					"response": []
+				},
+				{
+					"name": "[GET] All Playlists",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{BACKEND_URL}}/playlist"
+					},
+					"response": []
+				},
+				{
+					"name": "[GET] Playlist Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{BACKEND_URL}}/playlist/detail/playlist-3"
+					},
+					"response": []
+				},
+				{
+					"name": "[PATCH] Update Playlist",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"changed playlsdsdsdsdist-123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BACKEND_URL}}/playlist/update/playlist-6"
+					},
+					"response": []
+				},
+				{
+					"name": "[DELETE] Remove Playlist",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{BACKEND_URL}}/playlist/remove/playlist-2"
+					},
+					"response": []
+				},
+				{
+					"name": "[POST] Add Song To Playlist",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"song_id\": \"song-1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BACKEND_URL}}/playlist/add-song/playlist-3"
+					},
+					"response": []
+				},
+				{
+					"name": "[DELETE] Remove Song From Playlist",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"song_id\": \"song-1\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BACKEND_URL}}/playlist/remove-song/playlist-3"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Song",
+			"item": [
+				{
+					"name": "[POST] Create Song",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\":\"song title dua\",\r\n    \"genre\":\"metal\",\r\n    \"duration\":\"02:43\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BACKEND_URL}}/song/create"
+					},
+					"response": []
+				},
+				{
+					"name": "[GET] All Songs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{BACKEND_URL}}/song"
+					},
+					"response": []
+				},
+				{
+					"name": "[GET] Song Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{BACKEND_URL}}/song/detail/song-2"
+					},
+					"response": []
+				},
+				{
+					"name": "[PATCH] Update Song",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"song title satu edit\",\r\n    \"genre\": \"pop\",\r\n    \"duration\": \"01:23\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{BACKEND_URL}}/song/update/song-1"
+					},
+					"response": []
+				},
+				{
+					"name": "[DELETE] Remove Song",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "{{BACKEND_URL}}/song/remove/song-2"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "GET Test",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:8080/"
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": {
+			"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXItMSIsInVzZXJuYW1lIjoidXNlcnNhdHUiLCJyb2xlIjoibGlzdGVuZXIiLCJpYXQiOjE3MDY4ODcxNzYsImV4cCI6MTcwNjk3MzU3Nn0.zoN3-RKRBRuZn5hljrkiA1yGSvKX1wYw_qnS5V6Y0Mg"
+		}
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BACKEND_URL",
+			"value": "http://localhost:8080/api",
+			"type": "string"
+		}
+	]
+}
