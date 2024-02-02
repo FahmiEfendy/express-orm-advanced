@@ -114,7 +114,7 @@ const postLogin = async (objectData) => {
     );
 
     if (!isPasswordMatched) {
-      throw Boom.badRequest(`Wrong password!`);
+      throw Boom.badRequest(`Invalid password!`);
     }
 
     const token = __generateToken({
@@ -134,13 +134,25 @@ const postLogin = async (objectData) => {
   }
 };
 
-const patchChangePassword = async (objectData) => {
-  const { id, password } = objectData;
+const patchChangePassword = async (req) => {
+  const { username } = req.userData;
+  const { oldPassword, newPassword } = req.body;
 
   try {
-    const selectedUser = await db.User.findOne({ id: id });
+    const selectedUser = await db.User.findOne({ username });
 
-    selectedUser.password = password;
+    const isPasswordMatched = __comparePassword(
+      oldPassword,
+      selectedUser.password
+    );
+
+    if (!isPasswordMatched) {
+      throw Boom.badRequest(`Invalid old password!`);
+    }
+
+    const hashedNewPassword = __hashPassword(newPassword);
+
+    selectedUser.password = hashedNewPassword;
 
     await selectedUser.save({ fields: ["password"] });
 

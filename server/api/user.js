@@ -70,19 +70,10 @@ const userDetail = async (req, res) => {
 };
 
 const changePassword = async (req, res) => {
-  const { id } = req.params;
-  const { password } = req.body;
-
-  const objectData = {
-    id,
-    password,
-  };
-
   try {
-    validationHelper.idValidation(req.params);
-    validationHelper.updateUserValidation(req.body);
+    validationHelper.changePasswordValidation(req.body);
 
-    const response = await userHelper.patchChangePassword(objectData);
+    const response = await userHelper.patchChangePassword(req);
 
     res
       .status(200)
@@ -107,8 +98,12 @@ const removeUser = async (req, res) => {
 Router.post("/register", resgister);
 Router.post("/login", login);
 Router.get("/", userList);
-Router.get("/detail/", userMiddleware.tokenValidation, userDetail);
-Router.patch("/change-password/:id", changePassword);
+Router.get("/detail", userMiddleware.tokenValidation, userDetail);
+Router.patch(
+  "/change-password",
+  userMiddleware.tokenValidation,
+  changePassword
+);
 Router.delete("/remove/:id", removeUser);
 
 module.exports = Router;

@@ -107,6 +107,31 @@ const loginValidation = (data) => {
   }
 };
 
+const changePasswordValidation = (data) => {
+  const schema = Joi.object({
+    oldPassword: Joi.string()
+      .min(6)
+      .max(20)
+      .required()
+      .description("User's old password, should be 6-20 characters"),
+    newPassword: Joi.string()
+      .min(6)
+      .max(20)
+      .required()
+      .description("User's new password, should be 6-20 characters"),
+    confirmNewPassword: Joi.string()
+      .min(6)
+      .max(20)
+      .required()
+      .valid(Joi.ref("newPassword"))
+      .description("Should match user's new password"),
+  });
+
+  if (schema.validate(data).error) {
+    throw Boom.badRequest(schema.validate(data).error);
+  }
+};
+
 const updateUserValidation = (data) => {
   const schema = Joi.object({
     password: Joi.string()
@@ -126,5 +151,6 @@ module.exports = {
   updatePlaylistValidation,
   registerValidation,
   loginValidation,
+  changePasswordValidation,
   updateUserValidation,
 };
