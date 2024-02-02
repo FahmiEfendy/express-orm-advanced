@@ -17,9 +17,9 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-app.use("/song", song);
-app.use("/playlist", playlist);
-app.use("/user", user);
+app.use("/api/song", song);
+app.use("/api/playlist", playlist);
+app.use("/api/user", user);
 
 app.listen(port, () => {
   console.log(`Successfully connected to port ${port}`);
