@@ -22,11 +22,11 @@ app.use("/api/playlist", playlist);
 app.use("/api/user", user);
 
 app.use((req, res) => {
-  res.status(404).send("Not Found");
+  res.status(404).send("Routes Not Found!!!");
 });
 
 app.use((req, res) => {
-  res.status(500).send("Internal Server Error");
+  res.status(500).send("Internal Server Error!!!");
 });
 
 app.listen(port, () => {

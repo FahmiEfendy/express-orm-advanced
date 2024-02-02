@@ -132,11 +132,31 @@ const changePasswordValidation = (data) => {
   }
 };
 
-const updateUserValidation = (data) => {
+const forgotPasswordValidation = (data) => {
   const schema = Joi.object({
-    password: Joi.string()
+    username: Joi.string()
       .required()
-      .description("User password, i.e. JohnDoe456"),
+      .description("User's username, i.e. john123"),
+  });
+
+  if (schema.validate(data).error) {
+    throw Boom.badRequest(schema.validate(data).error);
+  }
+};
+
+const resetPasswordValidation = (data) => {
+  const schema = Joi.object({
+    newPassword: Joi.string()
+      .min(6)
+      .max(20)
+      .required()
+      .description("User's new password, should be 6-20 characters"),
+    confirmNewPassword: Joi.string()
+      .min(6)
+      .max(20)
+      .required()
+      .valid(Joi.ref("newPassword"))
+      .description("Should match user's new password"),
   });
 
   if (schema.validate(data).error) {
@@ -152,5 +172,6 @@ module.exports = {
   registerValidation,
   loginValidation,
   changePasswordValidation,
-  updateUserValidation,
+  forgotPasswordValidation,
+  resetPasswordValidation,
 };

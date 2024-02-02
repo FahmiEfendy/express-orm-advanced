@@ -23,7 +23,11 @@ const tokenValidation = (req, res, next) => {
     const isTokenExpired = verifiedUser.exp < Moment().unix();
     if (isTokenExpired) throw Boom.unauthorized();
 
-    req.userData = { username: verifiedUser.username };
+    req.body = {
+      ...req.body,
+      id: verifiedUser.id,
+      username: verifiedUser.username,
+    };
 
     return next();
   } catch (err) {

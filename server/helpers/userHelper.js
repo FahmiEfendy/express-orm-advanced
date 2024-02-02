@@ -39,12 +39,12 @@ const getUserList = async () => {
   }
 };
 
-const getUserDetail = async (req) => {
-  const { username } = req.userData;
+const getUserDetail = async (objectData) => {
+  const { id, username } = objectData;
 
   try {
-    const data = db.User.findOne({
-      where: { username },
+    const selectedUser = await db.User.findOne({
+      where: { id, username },
       attributes: { exclude: ["password"] },
       include: {
         model: db.Playlist,
@@ -53,9 +53,13 @@ const getUserDetail = async (req) => {
       },
     });
 
+    if (_.isEmpty(selectedUser)) {
+      throw Boom.badRequest(`User with username ${username} not found!`);
+    }
+
     console.log([fileName, "GET User Detail", "INFO"]);
 
-    return Promise.resolve(data);
+    return Promise.resolve(selectedUser);
   } catch (err) {
     console.log([fileName, "GET User Detail", "ERROR"], {
       message: { info: `${err}` },
@@ -118,6 +122,7 @@ const postLogin = async (objectData) => {
     }
 
     const token = __generateToken({
+      id: selectedUser.id,
       username: selectedUser.username,
       role: selectedUser.role,
     });
@@ -134,12 +139,15 @@ const postLogin = async (objectData) => {
   }
 };
 
-const patchChangePassword = async (req) => {
-  const { username } = req.userData;
-  const { oldPassword, newPassword } = req.body;
+const patchChangePassword = async (objectData) => {
+  const { id, username, oldPassword, newPassword } = objectData;
 
   try {
-    const selectedUser = await db.User.findOne({ username });
+    const selectedUser = await db.User.findOne({ id, username });
+
+    if (_.isEmpty(selectedUser)) {
+      throw Boom.badRequest(`User with username ${username} not found!`);
+    }
 
     const isPasswordMatched = __comparePassword(
       oldPassword,
@@ -163,6 +171,62 @@ const patchChangePassword = async (req) => {
     return Promise.resolve([]);
   } catch (err) {
     console.log([fileName, "PATCH Change User Password", "ERROR"], {
+      message: { info: `${err}` },
+    });
+
+    return Promise.reject(generalHelper.errorResponse(err));
+  }
+};
+
+const postForgotPassword = async (objectData) => {
+  const { username } = objectData;
+
+  try {
+    const selectedUser = await db.User.findOne({ where: { username } });
+
+    if (_.isEmpty(selectedUser)) {
+      throw Boom.badRequest(`There is no user with username ${username}`);
+    }
+
+    const token = __generateToken({
+      id: selectedUser.id,
+    });
+
+    console.log([fileName, "GET Reset Password", "INFO"]);
+
+    return Promise.resolve({ token });
+  } catch (err) {
+    console.log([fileName, "GET Reset Password", "ERROR"], {
+      message: { info: `${err}` },
+    });
+
+    return Promise.reject(generalHelper.errorResponse(err));
+  }
+};
+
+const postResetPassword = async (objectData) => {
+  const { id, username, newPassword } = objectData;
+
+  try {
+    const selectedUser = await db.User.findOne({ id, username });
+
+    if (_.isEmpty(selectedUser)) {
+      throw Boom.badRequest(`User with username ${username} not found!`);
+    }
+
+    const hashedNewPassword = __hashPassword(newPassword);
+
+    selectedUser.password = hashedNewPassword;
+
+    await selectedUser.save({ fields: ["password"] });
+
+    await selectedUser.reload();
+
+    console.log([fileName, "POST Reset Password", "INFO"]);
+
+    return Promise.resolve([]);
+  } catch (err) {
+    console.log([fileName, "POST Reset Password", "ERROR"], {
       message: { info: `${err}` },
     });
 
@@ -194,5 +258,7 @@ module.exports = {
   postRegister,
   postLogin,
   patchChangePassword,
+  postForgotPassword,
+  postResetPassword,
   deleteRemoveUser,
 };
