@@ -21,6 +21,14 @@ app.use("/api/song", song);
 app.use("/api/playlist", playlist);
 app.use("/api/user", user);
 
+app.use((req, res) => {
+  res.status(404).send("Not Found");
+});
+
+app.use((req, res) => {
+  res.status(500).send("Internal Server Error");
+});
+
 app.listen(port, () => {
   console.log(`Successfully connected to port ${port}`);
 });
