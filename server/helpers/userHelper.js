@@ -235,9 +235,15 @@ const postResetPassword = async (objectData) => {
 };
 
 const deleteRemoveUser = async (objectData) => {
-  const { id } = objectData;
+  const { id, username } = objectData;
 
   try {
+    const selectedUser = await db.User.findOne({ where: { id, username } });
+
+    if (_.isEmpty(selectedUser)) {
+      throw Boom.badRequest(`User with username ${username} not found!`);
+    }
+
     await db.User.destroy({ where: { id: id } });
 
     console.log([fileName, "DELETE Remove User", "INFO"]);

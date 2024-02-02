@@ -126,9 +126,7 @@ const resetPassword = async (req, res) => {
 
 const removeUser = async (req, res) => {
   try {
-    validationHelper.idValidation(req.params);
-
-    await userHelper.deleteRemoveUser(req.params);
+    await userHelper.deleteRemoveUser(req.body);
 
     res.status(200).send({ message: "Successfully Deleted a User" });
   } catch (err) {
@@ -151,6 +149,6 @@ Router.post(
   userMiddleware.tokenValidation,
   resetPassword
 );
-Router.delete("/remove/:id", removeUser);
+Router.delete("/remove", userMiddleware.tokenValidation, removeUser);
 
 module.exports = Router;

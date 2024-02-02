@@ -45,7 +45,7 @@ const getSongDetail = async (objectData) => {
 };
 
 const postCreateSong = async (objectData) => {
-  const { id, username, title, singer, genre, duration } = objectData;
+  const { id, username, title, genre, duration } = objectData;
 
   try {
     const selectedArtist = await db.User.findOne({
@@ -57,12 +57,12 @@ const postCreateSong = async (objectData) => {
     }
 
     const songExist = await db.Song.findOne({
-      where: { title, singer },
+      where: { title, singer: selectedArtist.fullname },
     });
 
     if (songExist) {
       throw Boom.badData(
-        `Song with title ${title} and singer ${singer} already exist!`
+        `Song with title ${title} and singer ${selectedArtist.fullname} already exist!`
       );
     }
 
@@ -103,7 +103,11 @@ const patchUpdateSong = async (objectData) => {
       throw Boom.unauthorized("You have no access to edit this song!");
     }
 
-    const selectedSong = await db.Song.findOne({ id: song_id });
+    const selectedSong = await db.Song.findOne({ where: { id: song_id } });
+
+    if (_.isEmpty(selectedSong)) {
+      throw Boom.notFound(`Song with id of ${song_id} does not exist!`);
+    }
 
     selectedSong.title = title || selectedSong.title;
     selectedSong.genre = genre || selectedSong.genre;
