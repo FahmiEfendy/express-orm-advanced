@@ -39,12 +39,13 @@ const getUserList = async () => {
   }
 };
 
-const getUserDetail = async (objectData) => {
-  const { id } = objectData;
+const getUserDetail = async (req) => {
+  const { username } = req.userData;
 
   try {
     const data = db.User.findOne({
-      where: { id: id },
+      where: { username },
+      attributes: { exclude: ["password"] },
       include: {
         model: db.Playlist,
         as: "playlists",

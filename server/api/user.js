@@ -3,6 +3,7 @@ const Router = require("express").Router();
 const userHelper = require("../helpers/userHelper");
 const generalHelper = require("../helpers/generalHelper");
 const validationHelper = require("../helpers/validationHelper");
+const userMiddleware = require("../middlewares/userMiddleware");
 
 const resgister = async (req, res) => {
   const { username, fullname, password, role } = req.body;
@@ -57,12 +58,10 @@ const userList = async (req, res) => {
 
 const userDetail = async (req, res) => {
   try {
-    validationHelper.idValidation(req.params);
-
-    const response = await userHelper.getUserDetail(req.params);
+    const response = await userHelper.getUserDetail(req);
 
     res.status(200).send({
-      message: `Successfully Get User Detail with id of ${req.params.id}`,
+      message: `Successfully Get User Detail`,
       data: response,
     });
   } catch (err) {
@@ -108,7 +107,7 @@ const removeUser = async (req, res) => {
 Router.post("/register", resgister);
 Router.post("/login", login);
 Router.get("/", userList);
-Router.get("/detail/:id", userDetail);
+Router.get("/detail/", userMiddleware.tokenValidation, userDetail);
 Router.patch("/change-password/:id", changePassword);
 Router.delete("/remove/:id", removeUser);
 
