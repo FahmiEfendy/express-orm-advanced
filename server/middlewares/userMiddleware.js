@@ -32,7 +32,9 @@ const tokenValidation = (req, res, next) => {
     return next();
   } catch (err) {
     console.log(fileName, "Token Validation", "ERROR", { info: err });
-    return res.send(generalHelper.errorResponse(err));
+    return res
+      .status(err.output.statusCode)
+      .send(generalHelper.errorResponse(err).output.payload);
   }
 };
 

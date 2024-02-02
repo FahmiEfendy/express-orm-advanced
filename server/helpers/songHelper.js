@@ -1,5 +1,5 @@
-const Boom = require("boom");
 const _ = require("lodash");
+const Boom = require("boom");
 
 const db = require("../../models");
 const generalHelper = require("./generalHelper");
@@ -27,6 +27,10 @@ const getSongDetail = async (objectData) => {
 
   try {
     const data = await db.Song.findOne({ where: { id: id } });
+
+    if (_.isEmpty(data)) {
+      throw Boom.notFound(`Song with id of ${id} does not exist!`);
+    }
 
     console.log([fileName, "GET Song Detail", "INFO"]);
 

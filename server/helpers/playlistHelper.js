@@ -1,3 +1,6 @@
+const _ = require("lodash");
+const Boom = require("boom");
+
 const db = require("../../models");
 const generalHelper = require("./generalHelper");
 
@@ -33,6 +36,10 @@ const getPlaylistDetail = async (objectData) => {
       },
     });
 
+    if (_.isEmpty(data)) {
+      throw Boom.notFound(`Playlist with id of ${id} does not exist!`);
+    }
+
     const formattedData = {
       ...data.dataValues,
       total_song: data.total_song,
@@ -51,15 +58,23 @@ const getPlaylistDetail = async (objectData) => {
 };
 
 const postCreatePlaylist = async (objectData) => {
-  const { name, user_id } = objectData;
+  const { id, username, name } = objectData;
 
   const playlistList = await getPlaylistList();
 
   try {
+    const selectedUser = await db.User.findOne({
+      where: { id, username },
+    });
+
+    if (_.isEmpty(selectedUser)) {
+      throw Boom.unauthorized("You must login first to create a playlist!");
+    }
+
     const newData = db.Playlist.build({
       id: `playlist-${playlistList.length + 1}`,
       name,
-      user_id,
+      user_id: id,
     });
 
     await newData.save();
@@ -77,10 +92,24 @@ const postCreatePlaylist = async (objectData) => {
 };
 
 const patchUpdatePlaylist = async (objectData) => {
-  const { id, name } = objectData;
+  const { id, username, playlist_id, name } = objectData;
 
   try {
-    const selectedPlaylist = await db.Playlist.findOne({ id: id });
+    const selectedUser = await db.User.findOne({
+      where: { id, username },
+    });
+
+    if (_.isEmpty(selectedUser)) {
+      throw Boom.unauthorized("You dont have access to update this playlist!");
+    }
+
+    const selectedPlaylist = await db.Playlist.findOne({
+      where: { id: playlist_id },
+    });
+
+    if (_.isEmpty(selectedPlaylist)) {
+      throw Boom.notFound(`Playlist with name of ${name} didn't exist!`);
+    }
 
     selectedPlaylist.name = name || selectedPlaylist.name;
 
@@ -101,10 +130,26 @@ const patchUpdatePlaylist = async (objectData) => {
 };
 
 const deleteRemovePlaylist = async (objectData) => {
-  const { id } = objectData;
+  const { id, username, playlist_id } = objectData;
 
   try {
-    await db.Playlist.destroy({ where: { id: id } });
+    const selectedUser = await db.User.findOne({
+      where: { id, username },
+    });
+
+    if (_.isEmpty(selectedUser)) {
+      throw Boom.unauthorized("You dont have access to delete this song!");
+    }
+
+    const selectedPlaylist = await db.Playlist.findOne({
+      where: { id: playlist_id },
+    });
+
+    if (_.isEmpty(selectedPlaylist)) {
+      throw Boom.notFound(`Playlist with id of ${playlist_id} does not exist!`);
+    }
+
+    await db.Playlist.destroy({ where: { id: playlist_id } });
 
     console.log([fileName, "DELETE Remove Playlist", "INFO"]);
 
@@ -119,12 +164,49 @@ const deleteRemovePlaylist = async (objectData) => {
 };
 
 const postAddSongToPlaylist = async (objectData) => {
-  const { playlist_id, song_id } = objectData;
+  const { id, username, playlist_id, song_id } = objectData;
 
   try {
+    const selectedUser = await db.User.findOne({
+      where: { id, username },
+    });
+
+    if (_.isEmpty(selectedUser)) {
+      throw Boom.unauthorized(
+        "You must login first to add a song to playlist!"
+      );
+    }
+
     const selectedPlaylist = await db.Playlist.findOne({
       where: { id: playlist_id },
     });
+
+    if (_.isEmpty(selectedPlaylist)) {
+      throw Boom.notFound(`Playlist with id of ${playlist_id} didn't exist!`);
+    }
+
+    const selectedSong = await db.Song.findOne({
+      where: { id: song_id },
+    });
+
+    if (_.isEmpty(selectedSong)) {
+      throw Boom.notFound(`Song with id of ${song_id} didn't exist!`);
+    }
+
+    const songExistInPlaylist = await db.Playlist.findOne({
+      where: { id: playlist_id },
+      include: {
+        model: db.Song,
+        as: "songs",
+        where: { id: song_id },
+      },
+    });
+
+    if (!_.isEmpty(songExistInPlaylist)) {
+      throw Boom.notFound(
+        `Song with id of${song_id} already exist in playlist with id of ${playlist_id}!`
+      );
+    }
 
     await selectedPlaylist.addSong(song_id);
 
@@ -147,12 +229,41 @@ const postAddSongToPlaylist = async (objectData) => {
 };
 
 const deleteRemoveSongFromPlaylist = async (objectData) => {
-  const { playlist_id, song_id } = objectData;
+  const { id, username, playlist_id, song_id } = objectData;
 
   try {
+    const selectedUser = await db.User.findOne({
+      where: { id, username },
+    });
+
+    if (_.isEmpty(selectedUser)) {
+      throw Boom.unauthorized(
+        "You must login first to delete a song from this playlist!"
+      );
+    }
+
     const selectedPlaylist = await db.Playlist.findOne({
       where: { id: playlist_id },
     });
+
+    if (_.isEmpty(selectedPlaylist)) {
+      throw Boom.notFound(`Playlist with id of ${playlist_id} didn't exist!`);
+    }
+
+    const songExistInPlaylist = await db.Playlist.findOne({
+      where: { id: playlist_id },
+      include: {
+        model: db.Song,
+        as: "songs",
+        where: { id: song_id },
+      },
+    });
+
+    if (_.isEmpty(songExistInPlaylist)) {
+      throw Boom.notFound(
+        `No song with id of ${song_id} exist in playlist with id of ${playlist_id}!`
+      );
+    }
 
     await selectedPlaylist.removeSong(song_id);
 

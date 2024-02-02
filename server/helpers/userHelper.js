@@ -54,7 +54,7 @@ const getUserDetail = async (objectData) => {
     });
 
     if (_.isEmpty(selectedUser)) {
-      throw Boom.badRequest(`User with username ${username} not found!`);
+      throw Boom.badRequest(`User with username ${username} does not found!`);
     }
 
     console.log([fileName, "GET User Detail", "INFO"]);

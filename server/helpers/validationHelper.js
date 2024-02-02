@@ -33,12 +33,13 @@ const songRequestValidation = (data, isUpdate = false) => {
   }
 };
 
-const createPlaylistValidation = (data) => {
+const playlistRequestValidation = (data, isUpdate = false) => {
   const schema = Joi.object({
-    name: Joi.string()
-      .required()
-      .description("Playlist name, i.e. Morning Music"),
-    user_id: Joi.string().required().description("User id, i.e. john-1"),
+    name: isUpdate
+      ? Joi.string().optional().description("Playlist name, i.e. Morning Music")
+      : Joi.string()
+          .required()
+          .description("Playlist name, i.e. Morning Music"),
   });
 
   if (schema.validate(data).error) {
@@ -164,7 +165,7 @@ const resetPasswordValidation = (data) => {
 module.exports = {
   idValidation,
   songRequestValidation,
-  createPlaylistValidation,
+  playlistRequestValidation,
   updatePlaylistValidation,
   registerValidation,
   loginValidation,
